@@ -1,5 +1,6 @@
 package com.faforever.client.api;
 
+import com.faforever.client.clan.Clan;
 import com.faforever.client.api.dto.AchievementDefinition;
 import com.faforever.client.api.dto.CoopMission;
 import com.faforever.client.api.dto.CoopResult;
@@ -120,6 +121,11 @@ public class FafApiAccessorImpl implements FafApiAccessor {
     return getAll("/data/playerAchievement", ImmutableMap.of(
         "filter", rsql(qBuilder().intNum("playerAchievement.player.id").eq(playerId))
     ));
+  }
+
+  @Override
+  public List<Clan> getClans() {
+    return getMany("/clans", 1000, Collections.emptyMap());
   }
 
   @Override

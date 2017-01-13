@@ -12,6 +12,8 @@ import java.util.concurrent.CompletableFuture;
 
 public interface PlayerService {
 
+  boolean isOnline(String username);
+
   /**
    * Returns the PlayerInfoBean for the specified username. Returns null if no such player is known.
    */

@@ -1,5 +1,6 @@
 package com.faforever.client.api;
 
+import com.faforever.client.clan.Clan;
 import com.faforever.client.FafClientApplication;
 import com.faforever.client.api.dto.AchievementDefinition;
 import com.faforever.client.api.dto.AchievementType;
@@ -42,6 +43,11 @@ public class MockFafApiAccessor implements FafApiAccessor {
   @Override
   public List<PlayerAchievement> getPlayerAchievements(int playerId) {
     return Collections.emptyList();
+  }
+
+  @Override
+  public List<Clan> getClans() {
+    return null;
   }
 
   @Override

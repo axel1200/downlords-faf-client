@@ -1,5 +1,6 @@
 package com.faforever.client.api;
 
+import com.faforever.client.clan.Clan;
 import com.faforever.client.api.dto.AchievementDefinition;
 import com.faforever.client.api.dto.CoopMission;
 import com.faforever.client.api.dto.CoopResult;
@@ -33,6 +34,8 @@ import java.util.Optional;
 public interface FafApiAccessor {
 
   List<PlayerAchievement> getPlayerAchievements(int playerId);
+
+  List<Clan> getClans();
 
   @SuppressWarnings("unchecked")
   List<PlayerEvent> getPlayerEvents(int playerId);

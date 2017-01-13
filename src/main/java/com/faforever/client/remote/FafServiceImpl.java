@@ -14,6 +14,7 @@ import com.faforever.client.api.dto.ModVersionReview;
 import com.faforever.client.api.dto.PlayerAchievement;
 import com.faforever.client.chat.avatar.AvatarBean;
 import com.faforever.client.chat.avatar.event.AvatarChangedEvent;
+import com.faforever.client.clan.Clan;
 import com.faforever.client.config.CacheNames;
 import com.faforever.client.coop.CoopMission;
 import com.faforever.client.domain.RatingHistoryDataPoint;
@@ -167,6 +168,11 @@ public class FafServiceImpl implements FafService {
     return CompletableFuture.completedFuture(fafApiAccessor.getMods().stream()
         .map(Mod::fromModInfo)
         .collect(toList()));
+  }
+
+  @Override
+  public List<Clan> getClans() {
+    return fafApiAccessor.getClans();
   }
 
   @Override
