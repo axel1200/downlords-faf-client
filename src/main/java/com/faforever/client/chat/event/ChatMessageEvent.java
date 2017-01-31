@@ -14,7 +14,4 @@ public class ChatMessageEvent {
     return message;
   }
 
-  public boolean isPrivate() {
-    return !message.getSource().contains("#");
-  }
 }

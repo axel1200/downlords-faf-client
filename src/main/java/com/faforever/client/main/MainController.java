@@ -1,7 +1,6 @@
 package com.faforever.client.main;
 
 import com.faforever.client.chat.event.UnreadPrivateMessageEvent;
-import com.faforever.client.chat.event.UnreadPrivateMessageEvent;
 import com.faforever.client.config.ClientProperties;
 import com.faforever.client.fx.AbstractViewController;
 import com.faforever.client.fx.Controller;
@@ -106,7 +105,7 @@ public class MainController implements Controller<Node> {
   public ToggleGroup mainNavigation;
   @VisibleForTesting
   Popup persistentNotificationsPopup;
-
+  private NavigationItem currentItem;
   private Popup transientNotificationsPopup;
   private WindowController windowController;
 
@@ -199,7 +198,7 @@ public class MainController implements Controller<Node> {
 
   @Subscribe
   public void onUnreadMessage(UnreadPrivateMessageEvent event) {
-    runLater(() -> chatButton.pseudoClassStateChanged(HIGHLIGHTED, !event.isChatFocused()));
+    runLater(() -> chatButton.pseudoClassStateChanged(HIGHLIGHTED, !currentItem.equals(NavigationItem.CHAT)));
   }
 
   private void setContent(Node node) {
@@ -454,6 +453,7 @@ public class MainController implements Controller<Node> {
         .findFirst()
         .ifPresent(toggle -> toggle.setSelected(true));
 
+    currentItem = item;
     preferencesService.getPreferences().getMainWindow().setLastView(item.name());
     preferencesService.storeInBackground();
   }

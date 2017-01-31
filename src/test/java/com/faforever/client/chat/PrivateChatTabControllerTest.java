@@ -4,6 +4,7 @@ import com.faforever.client.audio.AudioService;
 import com.faforever.client.fx.PlatformService;
 import com.faforever.client.fx.WebViewConfigurer;
 import com.faforever.client.i18n.I18n;
+import com.faforever.client.main.NavigationItem;
 import com.faforever.client.notification.NotificationService;
 import com.faforever.client.notification.TransientNotification;
 import com.faforever.client.player.Player;
@@ -41,8 +42,6 @@ public class PrivateChatTabControllerTest extends AbstractPlainJavaFxTest {
   private PrivateChatTabController instance;
   private String playerName;
 
-  @Mock
-  private PreferencesService preferencesService;
   @Mock
   private Preferences preferences;
   @Mock
@@ -82,6 +81,10 @@ public class PrivateChatTabControllerTest extends AbstractPlainJavaFxTest {
 
   @Before
   public void setUp() throws IOException {
+    PreferencesService preferencesService = new PreferencesService(eventBus);
+    preferencesService.postConstruct();
+    preferencesService.getPreferences().getMainWindow().setLastView(NavigationItem.CHAT.name());
+
     instance = new PrivateChatTabController(userService, chatService, platformService, preferencesService, playerService,
         audioService, timeService, i18n, imageUploadService, urlPreviewResolver, notificationService, reportingService,
         uiService, autoCompletionHelper, eventBus, webViewConfigurer, threadPoolExecutor
@@ -90,8 +93,6 @@ public class PrivateChatTabControllerTest extends AbstractPlainJavaFxTest {
     playerName = "testUser";
     Player player = new Player(playerName);
 
-    when(preferencesService.getPreferences()).thenReturn(preferences);
-    when(preferences.getChat()).thenReturn(chatPrefs);
     when(playerService.getPlayerForUsername(playerName)).thenReturn(player);
 
     TabPane tabPane = new TabPane();
