@@ -17,7 +17,6 @@ import com.faforever.client.util.RatingUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -36,6 +35,7 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 import static com.faforever.client.chat.SocialStatus.FOE;
+import static javafx.beans.binding.Bindings.createStringBinding;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -164,10 +164,10 @@ public class PrivateChatTabController extends AbstractChatTabController {
     loadMapPreview(game.getMapFolderName());
     game.mapFolderNameProperty().addListener((observable, oldValue, newValue) -> loadMapPreview(newValue));
 
-    InvalidationListener playerCountListener = (observable) -> gamePlayerCountLabel.setText(i18n.get("chat.privateMessage.game.playersFormat", game.getNumPlayers(), game.getMaxPlayers()));
-    playerCountListener.invalidated(null);
-    game.numPlayersProperty().addListener(playerCountListener);
-    game.maxPlayersProperty().addListener(playerCountListener);
+    //TODO: switch to custom bindings instead of listeners
+    gamePlayerCountLabel.textProperty().bind(createStringBinding(
+        () -> i18n.get("chat.privateMessage.game.playersFormat", game.getNumPlayers(), game.getMaxPlayers()),
+        game.numPlayersProperty(), game.maxPlayersProperty()));
 
     featuredModLabel.setText(game.getFeaturedMod());
 

@@ -30,7 +30,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,6 +44,7 @@ import static com.faforever.client.chat.SocialStatus.SELF;
 @Service
 public class PlayerServiceImpl implements PlayerService {
 
+  //TODO: map: player->game
   private final ObservableMap<String, Player> playersByName;
   private final ObservableMap<Integer, Player> playersById;
   private final List<Integer> foeList;

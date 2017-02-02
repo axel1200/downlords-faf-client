@@ -110,7 +110,11 @@ public class Game {
         teams.putAll(gameInfoMessage.getTeams());
       }
 
-      List<String> newUsers = teams.entrySet().stream().flatMap(newTeam -> newTeam.getValue().stream()).filter(Objects::nonNull).collect(Collectors.toList());
+      List<String> newUsers = teams.entrySet().stream()
+          .flatMap(newTeam -> newTeam.getValue().stream())
+          .filter(Objects::nonNull)
+          .collect(Collectors.toList());
+
       oldTeams.entrySet().forEach(oldTeam -> oldTeam.getValue().forEach(oldUser -> {
         if (!newUsers.contains(oldUser)) {
           Player leavingPlayer = playerService.getPlayerForUsername(oldUser);
