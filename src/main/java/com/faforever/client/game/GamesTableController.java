@@ -93,7 +93,7 @@ public class GamesTableController implements Controller<Node> {
     passwordProtectionColumn.setCellValueFactory(param -> param.getValue().passwordProtectedProperty());
     passwordProtectionColumn.setCellFactory(param -> passwordIndicatorColumn());
     mapPreviewColumn.setCellFactory(param -> new MapPreviewTableCell(uiService));
-    mapPreviewColumn.setCellValueFactory(param -> new ObjectBinding<Image>() {//TODO: do this async
+    mapPreviewColumn.setCellValueFactory(param -> new ObjectBinding<Image>() {//TODO: do this async, FIND A BETTER IMAGE LOADING SOLUTION
       {
         bind(param.getValue().mapFolderNameProperty());
       }
