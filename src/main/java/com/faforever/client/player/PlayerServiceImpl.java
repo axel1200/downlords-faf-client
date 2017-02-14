@@ -130,7 +130,11 @@ public class PlayerServiceImpl implements PlayerService {
 
       List<Player> leftGame = new LinkedList<Player>();
       gamesByPlayers.forEach((player, g) -> {
-        if (g == game && game.getTeams().entrySet().stream().flatMap(team -> team.getValue().stream()).filter(Objects::nonNull).noneMatch(s -> s.equals(player.getUsername()))) {
+        if (g == game
+            && game.getTeams().entrySet().stream()
+            .flatMap(team -> team.getValue().stream())
+            .filter(Objects::nonNull)
+            .noneMatch(s -> s.equals(player.getUsername()))) {
           player.setGame(null);
           leftGame.add(player);
         }

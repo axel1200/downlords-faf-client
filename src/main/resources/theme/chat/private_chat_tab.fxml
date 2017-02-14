@@ -11,7 +11,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 <Tab xmlns:fx="http://javafx.com/fxml/1" fx:id="privateChatTabRoot" xmlns="http://javafx.com/javafx/8.0.112"
      fx:controller="com.faforever.client.chat.PrivateChatTabController">
@@ -30,49 +29,43 @@
                             <Insets left="20.0" right="20.0"/>
                         </padding>
                         <HBox alignment="CENTER_RIGHT" prefWidth="200.0" spacing="10.0">
-                            <Label fx:id="usernameLabel" minWidth="-Infinity" text="username"/>
+                            <Label fx:id="usernameLabel" minWidth="-Infinity" text="username"
+                                   styleClass="private-chat-user-info-username"/>
                             <ImageView fx:id="userImageView" fitHeight="32.0" fitWidth="32.0"
                                        pickOnBounds="true" preserveRatio="true"/>
                         </HBox>
                         <HBox prefHeight="14"/>
 
-                        <Label minWidth="-Infinity" text="%chat.privateMessage.country">
-                            <font>
-                                <Font size="10.0"/>
-                            </font>
-                        </Label>
+                        <Label minWidth="-Infinity" text="%chat.privateMessage.country"
+                               styleClass="private-chat-user-info-title"/>
                         <HBox alignment="CENTER_RIGHT" spacing="6">
                             <ImageView fx:id="countryImageView" fitHeight="16.0" fitWidth="16.0"
                                        pickOnBounds="true" preserveRatio="true"/>
-                            <Label fx:id="countryLabel" minWidth="-Infinity" text="country"/>
+                            <Label fx:id="countryLabel" minWidth="-Infinity" text="country"
+                                   styleClass="private-chat-user-info-data"/>
                         </HBox>
                         <HBox prefHeight="14"/>
 
-                        <Label minWidth="-Infinity" text="%chat.privateMessage.globalrating">
-                            <font>
-                                <Font size="10.0"/>
-                            </font>
-                        </Label>
-                        <Label fx:id="globalRatingLevel" minWidth="-Infinity" text="rating"/>
+                        <Label minWidth="-Infinity" text="%chat.privateMessage.globalrating"
+                               styleClass="private-chat-user-info-title"/>
+                        <Label fx:id="globalRatingLevel" minWidth="-Infinity" text="rating"
+                               styleClass="private-chat-user-info-data"/>
                         <HBox prefHeight="14"/>
 
-                        <Label minWidth="-Infinity" text="%chat.privateMessage.leaderboardrating">
-                            <font>
-                                <Font size="10.0"/>
-                            </font>
-                        </Label>
-                        <Label fx:id="leaderboardRatingLevel" minWidth="-Infinity" text="rating"/>
+                        <Label minWidth="-Infinity" text="%chat.privateMessage.leaderboardrating"
+                               styleClass="private-chat-user-info-title"/>
+                        <Label fx:id="leaderboardRatingLevel" minWidth="-Infinity" text="rating"
+                               styleClass="private-chat-user-info-data"/>
                         <HBox prefHeight="14"/>
 
-                        <Label minWidth="-Infinity" text="%chat.privateMessage.gamesPlayed">
-                            <font>
-                                <Font size="10.0"/>
-                            </font>
-                        </Label>
-                        <Label fx:id="gamesPlayedLabel" minWidth="-Infinity" text="games played"/>
+                        <Label minWidth="-Infinity" text="%chat.privateMessage.gamesPlayed"
+                               styleClass="private-chat-user-info-title"/>
+                        <Label fx:id="gamesPlayedLabel" minWidth="-Infinity" text="games played"
+                               styleClass="private-chat-user-info-data"/>
                         <HBox prefHeight="35"/>
 
-                        <Label fx:id="inGameLabel" minWidth="-Infinity" text="isInGame?"/>
+                        <Label fx:id="inGameLabel" minWidth="-Infinity" text="isInGame?"
+                               styleClass="private-chat-user-info-data"/>
                         <HBox prefHeight="25"/>
                         <Separator/>
                         <HBox prefHeight="10"/>
@@ -84,29 +77,23 @@
                             <ImageView fx:id="mapPreview" fitWidth="64" fitHeight="64"/>
                             <HBox prefHeight="7"/>
 
-                            <Label minWidth="-Infinity" text="%chat.privateMessage.game.players">
-                                <font>
-                                    <Font size="10.0"/>
-                                </font>
-                            </Label>
-                            <Label fx:id="gamePlayerCountLabel" minWidth="-Infinity" text="players"/>
+                            <Label minWidth="-Infinity" text="%chat.privateMessage.game.players"
+                                   styleClass="private-chat-user-info-title"/>
+                            <Label fx:id="gamePlayerCountLabel" minWidth="-Infinity" text="players"
+                                   styleClass="private-chat-user-info-data"/>
                             <HBox prefHeight="7"/>
 
-                            <Label minWidth="-Infinity" text="%chat.privateMessage.game.featuredMod">
-                                <font>
-                                    <Font size="10.0"/>
-                                </font>
-                            </Label>
-                            <Label fx:id="featuredModLabel" minWidth="-Infinity" text="featured mod"/>
+                            <Label minWidth="-Infinity" text="%chat.privateMessage.game.featuredMod"
+                                   styleClass="private-chat-user-info-title"/>
+                            <Label fx:id="featuredModLabel" minWidth="-Infinity" text="featured mod"
+                                   styleClass="private-chat-user-info-data"/>
                             <HBox prefHeight="7"/>
 
                             <VBox fx:id="gameHostVBox" alignment="CENTER" visible="false" managed="false">
-                                <Label minWidth="-Infinity" text="%chat.privateMessage.game.host">
-                                    <font>
-                                        <Font size="10.0"/>
-                                    </font>
-                                </Label>
-                                <Label fx:id="gameHostLabel" minWidth="-Infinity" text="games played"/>
+                                <Label minWidth="-Infinity" text="%chat.privateMessage.game.host"
+                                       styleClass="private-chat-user-info-title"/>
+                                <Label fx:id="gameHostLabel" minWidth="-Infinity" text="host"
+                                       styleClass="private-chat-user-info-data"/>
                             </VBox>
                             <HBox prefHeight="20"/>
 
