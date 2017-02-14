@@ -1,7 +1,5 @@
 package com.faforever.client.game;
 
-import com.faforever.client.player.Player;
-import com.faforever.client.player.PlayerService;
 import com.faforever.client.remote.domain.GameInfoMessage;
 import com.faforever.client.remote.domain.GameStatus;
 import com.faforever.client.remote.domain.VictoryCondition;
@@ -20,10 +18,8 @@ import javafx.collections.ObservableMap;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Game {
 
@@ -57,9 +53,9 @@ public class Game {
    */
   private final MapProperty<String, Integer> featuredModVersions;
 
-  public Game(GameInfoMessage gameInfoMessage, PlayerService playerService) {
+  public Game(GameInfoMessage gameInfoMessage) {
     this();
-    updateFromGameInfo(gameInfoMessage, playerService);
+    updateFromGameInfo(gameInfoMessage);
   }
 
   public Game() {
@@ -82,7 +78,7 @@ public class Game {
     status = new SimpleObjectProperty<>();
   }
 
-  public void updateFromGameInfo(GameInfoMessage gameInfoMessage, PlayerService playerService) {
+  public void updateFromGameInfo(GameInfoMessage gameInfoMessage) {
     id.set(gameInfoMessage.getUid());
     host.set(gameInfoMessage.getHost());
     title.set(StringEscapeUtils.unescapeHtml4(gameInfoMessage.getTitle()));
@@ -102,27 +98,10 @@ public class Game {
     }
 
     synchronized (teams.get()) {
-      MapProperty<String, List<String>> oldTeams = new SimpleMapProperty<>(FXCollections.observableHashMap());
-      oldTeams.putAll(teams);
-
       teams.clear();
       if (gameInfoMessage.getTeams() != null) {
         teams.putAll(gameInfoMessage.getTeams());
       }
-
-      List<String> newUsers = teams.entrySet().stream()
-          .flatMap(newTeam -> newTeam.getValue().stream())
-          .filter(Objects::nonNull)
-          .collect(Collectors.toList());
-
-      oldTeams.entrySet().forEach(oldTeam -> oldTeam.getValue().forEach(oldUser -> {
-        if (!newUsers.contains(oldUser)) {
-          Player leavingPlayer = playerService.getPlayerForUsername(oldUser);
-          if (leavingPlayer != null) {
-            leavingPlayer.setGame(null);
-          }
-        }
-      }));
     }
 
     synchronized (featuredModVersions.get()) {

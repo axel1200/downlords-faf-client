@@ -30,6 +30,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,6 +48,7 @@ public class PlayerServiceImpl implements PlayerService {
   //TODO: map: player->game
   private final ObservableMap<String, Player> playersByName;
   private final ObservableMap<Integer, Player> playersById;
+  private final ObservableMap<Player, Game> gamesByPlayers;
   private final List<Integer> foeList;
   private final List<Integer> friendList;
   private final ObjectProperty<Player> currentPlayer;
@@ -63,6 +65,7 @@ public class PlayerServiceImpl implements PlayerService {
   public PlayerServiceImpl() {
     playersByName = FXCollections.observableHashMap();
     playersById = FXCollections.observableHashMap();
+    gamesByPlayers = FXCollections.observableHashMap();
     friendList = new ArrayList<>();
     foeList = new ArrayList<>();
     currentPlayer = new SimpleObjectProperty<>();
@@ -76,15 +79,15 @@ public class PlayerServiceImpl implements PlayerService {
 
     gameService.getGames().addListener((ListChangeListener<? super Game>) listChange -> {
       while (listChange.next()) {
-          listChange.getRemoved().forEach(this::updateGameForPlayersInGame);
+        listChange.getRemoved().forEach(this::updateGameForPlayersInGame);
 
-          if (listChange.wasUpdated()) {
-            for (int i = listChange.getFrom(); i < listChange.getTo(); i++) {
-              updateGameForPlayersInGame(listChange.getList().get(i));
-            }
+        if (listChange.wasUpdated()) {
+          for (int i = listChange.getFrom(); i < listChange.getTo(); i++) {
+            updateGameForPlayersInGame(listChange.getList().get(i));
           }
+        }
 
-          listChange.getAddedSubList().forEach(this::updateGameForPlayersInGame);
+        listChange.getAddedSubList().forEach(this::updateGameForPlayersInGame);
       }
     });
   }
@@ -124,6 +127,15 @@ public class PlayerServiceImpl implements PlayerService {
     ObservableMap<String, List<String>> teams = game.getTeams();
     synchronized (teams) {
       teams.forEach((team, players) -> updateGamePlayers(players, game));
+
+      List<Player> leftGame = new LinkedList<Player>();
+      gamesByPlayers.forEach((player, g) -> {
+        if (g == game && game.getTeams().entrySet().stream().flatMap(team -> team.getValue().stream()).filter(Objects::nonNull).noneMatch(s -> s.equals(player.getUsername()))) {
+          player.setGame(null);
+          leftGame.add(player);
+        }
+      });
+      leftGame.forEach(player -> gamesByPlayers.remove(player));
     }
   }
 
@@ -134,6 +146,12 @@ public class PlayerServiceImpl implements PlayerService {
         .forEach(player -> {
           resetIdleTime(player);
           player.setGame(game);
+          if (gamesByPlayers.containsKey(player) && gamesByPlayers.get(player) != game) {
+            gamesByPlayers.remove(player);
+          }
+          if (!gamesByPlayers.containsKey(player)) {
+            gamesByPlayers.put(player, game);
+          }
           GameStatus gameStatus = game.getStatus();
           if (player.getSocialStatus() == FRIEND) {
             if (gameStatus == GameStatus.OPEN) {
