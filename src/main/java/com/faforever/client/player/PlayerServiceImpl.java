@@ -173,8 +173,8 @@ public class PlayerServiceImpl implements PlayerService {
   }
 
   @Override
-  public Player getPlayerForId(int id) {
-    return playersById.get(id);
+  public Optional<Player> getPlayerForId(int id) {
+    return Optional.ofNullable(playersById.get(id));
   }
 
   @Override
