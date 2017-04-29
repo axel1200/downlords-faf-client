@@ -1277,6 +1277,15 @@
   -fx-fill: #FFA500;
 }
 
+.chat-user-control-clan {
+  -fx-background-color: transparent;
+}
+
+.chat-user-control-clan .arrow-button {
+  -fx-padding: 0;
+  visibility: hidden;
+}
+
 /***************** Window *****************/
 
 .decorated-window {

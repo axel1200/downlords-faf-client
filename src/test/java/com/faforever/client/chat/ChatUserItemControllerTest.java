@@ -29,6 +29,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.testfx.util.WaitForAsyncUtils;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.not;
@@ -78,7 +81,7 @@ public class ChatUserItemControllerTest extends AbstractPlainJavaFxTest {
     when(i18n.get(eq("user.status.hosting"), anyString())).thenReturn("Hosting");
     when(i18n.get(eq("user.status.waiting"), anyString())).thenReturn("Waiting");
     when(i18n.get(eq("user.status.playing"), anyString())).thenReturn("Playing");
-    when(clanService.getClanByTag(anyString())).thenReturn(new Clan());
+    when(clanService.getClanByTag(anyString())).thenReturn(CompletableFuture.completedFuture(Optional.of(new Clan())));
 
     loadFxml("theme/chat/chat_user_item.fxml", param -> instance);
   }
@@ -94,7 +97,6 @@ public class ChatUserItemControllerTest extends AbstractPlainJavaFxTest {
     instance.setPlayer(PlayerBuilder.create("junit").defaultValues().get());
 
     assertThat(instance.clanMenu.getText(), is("[e]"));
-    assertThat(instance.clanLabel.getText(), is("[e]"));
     assertThat(instance.countryImageView.isVisible(), is(true));
     verify(countryFlagService).loadCountryFlag("US");
   }
@@ -168,7 +170,6 @@ public class ChatUserItemControllerTest extends AbstractPlainJavaFxTest {
 
     assertThat(instance.usernameLabel.getTooltip(), not(nullValue()));
     assertThat(instance.clanMenu.getTooltip(), not(nullValue()));
-    assertThat(instance.clanLabel.getTooltip(), nullValue());
   }
 
   @Test
@@ -274,12 +275,9 @@ public class ChatUserItemControllerTest extends AbstractPlainJavaFxTest {
   @Test
   public void testOnMouseEnteredTag() throws Exception {
     instance.clanMenu.setVisible(false);
-    instance.clanLabel.setVisible(true);
     instance.setPlayer(PlayerBuilder.create("junit").defaultValues().get());
     instance.onMouseEnterTag();
     assertThat(instance.clanMenu.getPrefWidth(), not(0.0));
-    assertThat(instance.clanLabel.getPrefWidth(), is(0.0));
     assertThat(instance.clanMenu.isVisible(), is(true));
-    assertThat(instance.clanLabel.isVisible(), is(false));
   }
 }

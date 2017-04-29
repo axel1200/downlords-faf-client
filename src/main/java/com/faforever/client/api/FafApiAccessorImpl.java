@@ -1,7 +1,7 @@
 package com.faforever.client.api;
 
-import com.faforever.client.clan.Clan;
 import com.faforever.client.api.dto.AchievementDefinition;
+import com.faforever.client.api.dto.Clan;
 import com.faforever.client.api.dto.CoopMission;
 import com.faforever.client.api.dto.CoopResult;
 import com.faforever.client.api.dto.FeaturedModFile;
@@ -121,11 +121,6 @@ public class FafApiAccessorImpl implements FafApiAccessor {
     return getAll("/data/playerAchievement", ImmutableMap.of(
         "filter", rsql(qBuilder().intNum("playerAchievement.player.id").eq(playerId))
     ));
-  }
-
-  @Override
-  public List<Clan> getClans() {
-    return getMany("/clans", 1000, Collections.emptyMap());
   }
 
   @Override
@@ -382,6 +377,17 @@ public class FafApiAccessorImpl implements FafApiAccessor {
   @Override
   public void deleteGameReview(int id) {
     delete("/data/gameReview/" + id);
+  }
+
+  @Override
+  public Optional<Clan> getClanByTag(String tag) {
+    List<Clan> clans = getMany("/data/clan", 1, ImmutableMap.of(
+        "filter", rsql(qBuilder().string("tag").eq(tag))
+    ));
+    if (clans.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(clans.get(0));
   }
 
   @Override

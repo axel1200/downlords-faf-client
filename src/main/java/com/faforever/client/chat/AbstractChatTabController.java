@@ -2,7 +2,6 @@ package com.faforever.client.chat;
 
 import com.faforever.client.audio.AudioService;
 import com.faforever.client.chat.UrlPreviewResolver.Preview;
-import com.faforever.client.clan.Clan;
 import com.faforever.client.clan.ClanService;
 import com.faforever.client.clan.ClanTooltipController;
 import com.faforever.client.fx.Controller;
@@ -78,7 +77,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -404,24 +402,20 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
    */
   public void clanInfo(String clanTag) {
     String clanTagWithReplacement = removeBrackets(clanTag);
-    CompletableFuture<Clan> clanCompletableFutureForTooltip = CompletableFuture.supplyAsync(() -> clanService.getClanByTag(clanTagWithReplacement));
-    clanCompletableFutureForTooltip.thenAccept(clan -> {
-      Platform.runLater(() -> {
-        if (clan == null || clanTagWithReplacement.isEmpty()) {
-          return;
-        }
-        ClanTooltipController clanTooltipController = uiService.loadFxml("theme/chat/clan_tooltip.fxml");
-        clanTooltipController.setClan(clan);
-        clanInfoPopup = new Popup();
-        clanTooltipController.getRoot().getStyleClass().add("tooltip");
-        clanInfoPopup.getContent().setAll(clanTooltipController.getRoot());
-        clanInfoPopup.setAnchorLocation(AnchorLocation.CONTENT_TOP_LEFT);
-        clanInfoPopup.show(getRoot().getTabPane().getScene().getWindow(), lastMouseX, lastMouseY + 10);
-        clanInfoPopup.setAutoHide(true);
+    clanService.getClanByTag(clanTagWithReplacement).thenAccept(clan -> Platform.runLater(() -> {
+      if (!clan.isPresent() || clanTagWithReplacement.isEmpty()) {
+        return;
+      }
+      ClanTooltipController clanTooltipController = uiService.loadFxml("theme/chat/clan_tooltip.fxml");
+      clanTooltipController.setClan(clan.get());
+      clanInfoPopup = new Popup();
+      clanTooltipController.getRoot().getStyleClass().add("tooltip");
+      clanInfoPopup.getContent().setAll(clanTooltipController.getRoot());
+      clanInfoPopup.setAnchorLocation(AnchorLocation.CONTENT_TOP_LEFT);
+      clanInfoPopup.show(getRoot().getTabPane().getScene().getWindow(), lastMouseX, lastMouseY + 10);
+      clanInfoPopup.setAutoHide(true);
 
-      });
-
-    });
+    }));
   }
 
   /**
@@ -441,18 +435,18 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
   public void showClanWebsite(String clanTag) {
     String clanTagWithReplacement = removeBrackets(clanTag);
 
-    CompletableFuture<Clan> clanCompletableFutureForTooltip = CompletableFuture.supplyAsync(() -> clanService.getClanByTag(clanTagWithReplacement));
-    clanCompletableFutureForTooltip.thenAccept(clan -> {
+    clanService.getClanByTag(clanTagWithReplacement).thenAccept(clan -> {
       if (clan == null || clanTagWithReplacement.isEmpty()) {
         return;
       }
-      platformService.showDocument(clanService.getUrlOfClanWebsite(clan));
+      platformService.showDocument(clan.get().getWebsiteUrl());
     });
   }
 
   private String removeBrackets(String tag) {
-    return tag.replaceAll("\\[|\\]", "");
+    return tag.replaceAll("\\[|]", "");
   }
+
   /**
    * Called from JavaScript when user hovers over a user name.
    */

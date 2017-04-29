@@ -1,8 +1,9 @@
 package com.faforever.client.clan;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
 public interface ClanService {
 
-  Clan getClanByTag(String tag);
-
-  String getUrlOfClanWebsite(Clan clan);
+  CompletableFuture<Optional<Clan>> getClanByTag(String tag);
 }

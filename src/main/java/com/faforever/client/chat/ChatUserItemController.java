@@ -26,7 +26,6 @@ import javafx.collections.MapChangeListener;
 import javafx.collections.WeakMapChangeListener;
 import javafx.css.PseudoClass;
 import javafx.scene.Node;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -36,7 +35,6 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.PopupWindow;
@@ -48,7 +46,7 @@ import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 
 import static com.faforever.client.chat.ChatColorMode.CUSTOM;
 import static com.faforever.client.chat.SocialStatus.SELF;
@@ -84,7 +82,6 @@ public class ChatUserItemController implements Controller<Node> {
   public MenuButton clanMenu;
   public Label statusLabel;
   public Text presenceStatusIndicator;
-  public Label clanLabel;
   private Player player;
   private boolean colorsAllowedInPane;
   private ChangeListener<ChatColorMode> colorModeChangeListener;
@@ -94,7 +91,8 @@ public class ChatUserItemController implements Controller<Node> {
   private ChangeListener<PlayerStatus> gameStatusChangeListener;
   private InvalidationListener userActivityListener;
   private Clan clan;
-  private boolean closedByClick = false;
+  // TODO if there is a way to get rid of this, do it
+  private boolean closedByClick;
 
 
   @Inject
@@ -121,7 +119,7 @@ public class ChatUserItemController implements Controller<Node> {
   public void initialize() {
     userActivityListener = (observable) -> Platform.runLater(this::onUserActivity);
 
-    // TODO until server side support is available, the precense status is initially set to "unknown" until the user
+    // TODO until server side support is available, the presence status is initially set to "unknown" until the user
     // does something
     presenceStatusIndicator.setText("\uF10C");
     setIdle(false);
@@ -131,16 +129,15 @@ public class ChatUserItemController implements Controller<Node> {
     countryImageView.setVisible(false);
     statusLabel.managedProperty().bind(statusLabel.visibleProperty());
     statusLabel.visibleProperty().bind(statusLabel.textProperty().isNotEmpty());
+    clanMenu.managedProperty().bind(clanMenu.visibleProperty());
 
-    InvalidationListener closingClanMenuListener = observable -> {
+    clanMenu.showingProperty().addListener(observable -> {
       if (clanMenu.isShowing() || closedByClick) {
         closedByClick = false;
         return;
       }
-      deflate(clanMenu);
-      inflate(clanLabel);
-    };
-    clanMenu.showingProperty().addListener(closingClanMenuListener);
+      clanMenu.setVisible(false);
+    });
 
     ChatPrefs chatPrefs = preferencesService.getPreferences().getChat();
 
@@ -170,20 +167,12 @@ public class ChatUserItemController implements Controller<Node> {
     }
   }
 
-  public void onClanLeaderRequested() {
-    if (clan != null || playerService.isOnline(clan.getLeaderName())) {
-      eventBus.post(new InitiatePrivateChatEvent(clan.getLeaderName()));
-    }
-  }
-
-
   private void configureColor() {
     ChatPrefs chatPrefs = preferencesService.getPreferences().getChat();
 
     if (player.getSocialStatus() == SELF) {
       usernameLabel.getStyleClass().add(SELF.getCssClass());
       clanMenu.getStyleClass().add(SELF.getCssClass());
-      clanLabel.getStyleClass().add(SELF.getCssClass());
       return;
     }
 
@@ -211,13 +200,9 @@ public class ChatUserItemController implements Controller<Node> {
     if (color != null) {
       usernameLabel.setStyle(String.format("-fx-text-fill: %s", JavaFxUtil.toRgbCode(color)));
       clanMenu.setStyle(String.format("-fx-text-fill: %s", JavaFxUtil.toRgbCode(color)));
-      clanLabel.setStyle(String.format("-fx-text-fill: %s", JavaFxUtil.toRgbCode(color)));
-
     } else {
       usernameLabel.setStyle("");
       clanMenu.setStyle("");
-      clanLabel.setStyle("");
-
     }
   }
 
@@ -232,14 +217,12 @@ public class ChatUserItemController implements Controller<Node> {
 
   private void setClanTag(String newValue) {
     if (StringUtils.isEmpty(newValue)) {
-      clanLabel.setVisible(false);
       clanMenu.setVisible(false);
       return;
     }
-    if (usernameLabel.getTooltip() != null || clanMenu.getTooltip() != null) {
-      usernameLabel.setTooltip(null);
-      clanMenu.setTooltip(null);
-    }
+    Optional.ofNullable(usernameLabel.getTooltip()).ifPresent(tooltip -> usernameLabel.setTooltip(null));
+    Optional.ofNullable(clanMenu.getTooltip()).ifPresent(tooltip -> clanMenu.setTooltip(null));
+
     clanMenu.setOnMousePressed(event -> {
       event.consume();
       if (clanMenu.isShowing()) {
@@ -249,11 +232,7 @@ public class ChatUserItemController implements Controller<Node> {
       }
       clanMenu.show();
     });
-    clanLabel.setVisible(true);
     clanMenu.setText(String.format(CLAN_TAG_FORMAT, newValue));
-    clanLabel.setText(String.format(CLAN_TAG_FORMAT, newValue));
-
-
   }
 
   private void updateGameStatus() {
@@ -345,17 +324,16 @@ public class ChatUserItemController implements Controller<Node> {
   }
 
   public void onMouseEnterUsername() {
-    CompletableFuture<Clan> clanCompletableFutureForTooltip = CompletableFuture.supplyAsync(() -> clanService.getClanByTag(player.getClan()));
-    clanCompletableFutureForTooltip.thenAccept(clan1 -> {
-      clan = clan1;
-      if (clan == null || player.getClan().isEmpty()) {
+    clanService.getClanByTag(player.getClan()).thenAccept(optionalClan -> {
+      if (!optionalClan.isPresent() || player.getClan().isEmpty()) {
         return;
       }
 
-      if (playerService.isOnline(clan.getLeaderName())) {
-        MenuItem toLeader = new MenuItem(i18n.get("clan.toLeader"));
-        toLeader.setOnAction(event -> onClanLeaderRequested());
-        clanMenu.getItems().add(1, toLeader);
+      Clan clan = optionalClan.get();
+      if (playerService.isOnline(clan.getLeader().getId())) {
+        MenuItem messageLeader = new MenuItem(i18n.get("clan.messageLeader"));
+        messageLeader.setOnAction(event -> eventBus.post(new InitiatePrivateChatEvent(clan.getLeader().getUsername())));
+        clanMenu.getItems().add(1, messageLeader);
       } else if (clanMenu.getItems().size() == 2) {
         clanMenu.getItems().remove(1);
       }
@@ -371,12 +349,12 @@ public class ChatUserItemController implements Controller<Node> {
       clanTooltip.setMaxHeight(clanTooltipController.getRoot().getHeight());
       clanTooltip.setGraphic(clanTooltipController.getRoot());
 
-      MenuItem page = new MenuItem(i18n.get("clan.visitPage"));
-      page.setOnAction(event -> {
-        platformService.showDocument(clanService.getUrlOfClanWebsite(clan));
+      MenuItem visitClanPageAction = new MenuItem(i18n.get("clan.visitPage"));
+      visitClanPageAction.setOnAction(event -> {
+        platformService.showDocument(clan.getWebsiteUrl());
         // TODO: Could be viewed in clan section (if implemented)
       });
-      clanMenu.getItems().add(0, page);
+      clanMenu.getItems().add(0, visitClanPageAction);
     });
 
     if (player == null || player.getChatOnly() || usernameLabel.getTooltip() != null) {
@@ -430,35 +408,20 @@ public class ChatUserItemController implements Controller<Node> {
     updatePresenceStatusIndicator();
   }
 
+  // TODO is this needed?
   public void onMouseEnterTag() {
     onMouseEnterUsername();
-    if (clan == null | player.getClan().isEmpty()) {
+    if (clan == null || player.getClan().isEmpty()) {
       return;
     }
-    inflate(clanMenu);
-    deflate(clanLabel);
+    clanMenu.setVisible(true);
   }
 
+  // TODO is this needed?
   public void onMouseExitedTag() {
     if (clanMenu.isShowing()) {
       return;
     }
-    deflate(clanMenu);
-    inflate(clanLabel);
+    clanMenu.setVisible(false);
   }
-
-  private void inflate(Control control) {
-    control.setMinWidth(Region.USE_PREF_SIZE);
-    control.setMaxHeight(Region.USE_PREF_SIZE);
-    control.setPrefWidth(Region.USE_COMPUTED_SIZE);
-    control.setVisible(true);
-  }
-
-  private void deflate(Control control) {
-    control.setMinWidth(0);
-    control.setMaxHeight(0);
-    control.setPrefWidth(0);
-    control.setVisible(false);
-  }
-
 }

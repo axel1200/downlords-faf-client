@@ -76,8 +76,6 @@ public interface FafService {
 
   CompletableFuture<Mod> getMod(String uid);
 
-  List<Clan> getClans();
-
   void reconnect();
 
   CompletableFuture<List<MapBean>> getMostDownloadedMaps(int count);
@@ -139,4 +137,6 @@ public interface FafService {
   CompletableFuture<Optional<Replay>> getLastGameOnMap(int playerId, int mapVersionId);
 
   CompletableFuture<Void> deleteGameReview(Review review);
+
+  CompletableFuture<Optional<Clan>> getClanByTag(String tag);
 }

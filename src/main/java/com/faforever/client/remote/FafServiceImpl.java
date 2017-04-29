@@ -171,11 +171,6 @@ public class FafServiceImpl implements FafService {
   }
 
   @Override
-  public List<Clan> getClans() {
-    return fafApiAccessor.getClans();
-  }
-
-  @Override
   @Async
   public CompletableFuture<Mod> getMod(String uid) {
     return CompletableFuture.completedFuture(Mod.fromModInfo(fafApiAccessor.getMod(uid)));
@@ -444,6 +439,13 @@ public class FafServiceImpl implements FafService {
   public CompletableFuture<Void> deleteGameReview(Review review) {
     fafApiAccessor.deleteGameReview(review.getId());
     return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<Optional<Clan>> getClanByTag(String tag) {
+    return CompletableFuture.completedFuture(fafApiAccessor.getClanByTag(tag)
+        .map(Clan::fromDto));
   }
 
   @Override

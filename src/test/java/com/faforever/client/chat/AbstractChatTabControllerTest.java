@@ -44,6 +44,7 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
@@ -52,10 +53,9 @@ import static com.faforever.client.chat.SocialStatus.FOE;
 import static com.faforever.client.chat.SocialStatus.FRIEND;
 import static com.faforever.client.chat.SocialStatus.OTHER;
 import static com.faforever.client.chat.SocialStatus.SELF;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -146,9 +146,9 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
     preferences = new Preferences();
 
     Clan clan = new Clan();
-    clan.setId("1234");
+    clan.setId(1234);
 
-    when(clanService.getClanByTag(sampleClanTag)).thenReturn(clan);
+    when(clanService.getClanByTag(sampleClanTag)).thenReturn(CompletableFuture.completedFuture(Optional.of(clan)));
     when(uiService.loadFxml("theme/chat/clan_tooltip.fxml")).thenReturn(mock(ClanTooltipController.class));
     when(uiService.getThemeFileUrl(any())).thenReturn(getClass().getResource("/theme/chat/chat_section.html"));
     when(timeService.asShortTime(any())).thenReturn("123");
@@ -176,7 +176,7 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
     instance.onSendMessage();
 
     verify(chatService).sendMessageInBackground(eq(receiver), eq(message));
-    assertThat(instance.getMessageTextField().getText(), isEmptyString());
+    assertThat(instance.getMessageTextField().getText(), is(emptyString()));
     assertThat(instance.getMessageTextField().isDisable(), is(false));
   }
 
@@ -215,12 +215,12 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
   @Test
   public void testShowClanWebsite() throws Exception {
     Clan clan = new Clan();
-    clan.setId("1234");
+    clan.setId(1234);
+    clan.setWebsiteUrl("http://example.com");
     instance.showClanWebsite(sampleClanTag);
 
     WaitForAsyncUtils.waitForFxEvents();
 
-    verify(clanService).getUrlOfClanWebsite(clan);
     verify(platformService).showDocument(any());
   }
 
@@ -235,7 +235,7 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
     instance.onSendMessage();
 
     verify(chatService).sendActionInBackground(eq(receiver), eq("is happy"));
-    assertThat(instance.getMessageTextField().getText(), isEmptyString());
+    assertThat(instance.getMessageTextField().getText(), is(emptyString()));
     assertThat(instance.getMessageTextField().isDisable(), is(false));
   }
 
@@ -332,12 +332,6 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
       instance.hideUrlPreview();
     });
     // I don't see what could be verified here
-  }
-
-
-  @NotNull
-  private KeyEvent keyEvent(KeyCode keyCode) {
-    return keyEvent(keyCode, emptyList());
   }
 
   @NotNull

@@ -1,9 +1,9 @@
 package com.faforever.client.api;
 
-import com.faforever.client.clan.Clan;
 import com.faforever.client.FafClientApplication;
 import com.faforever.client.api.dto.AchievementDefinition;
 import com.faforever.client.api.dto.AchievementType;
+import com.faforever.client.api.dto.Clan;
 import com.faforever.client.api.dto.CoopMission;
 import com.faforever.client.api.dto.CoopResult;
 import com.faforever.client.api.dto.FeaturedModFile;
@@ -43,11 +43,6 @@ public class MockFafApiAccessor implements FafApiAccessor {
   @Override
   public List<PlayerAchievement> getPlayerAchievements(int playerId) {
     return Collections.emptyList();
-  }
-
-  @Override
-  public List<Clan> getClans() {
-    return null;
   }
 
   @Override
@@ -238,6 +233,11 @@ public class MockFafApiAccessor implements FafApiAccessor {
   @Override
   public void deleteGameReview(int id) {
 
+  }
+
+  @Override
+  public Optional<Clan> getClanByTag(String tag) {
+    return null;
   }
 
   @Override
